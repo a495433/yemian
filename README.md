@@ -1,6 +1,6 @@
-#My git   
-*This is my first git project
-*This is my first git project
-*This is my first git project
-*This is my first git project
-*This is my first git project
+#My git    
+*This is my first git project  
+*This is my first git project 
+*This is my first git project 
+*This is my first git project 
+*This is my first git project 
