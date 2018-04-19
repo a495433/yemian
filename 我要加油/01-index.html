@@ -1,0 +1,157 @@
+<!doctype html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<!--禁止缩放-->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+<title>index</title>
+<link rel="stylesheet" href="css/default.css" type="text/css">
+<link rel="stylesheet" href="mint-ui/style.css" type="text/css">
+<style type="text/css">
+body{background-color: #eee;}
+[v-cloak] { display: none }
+.popup{width: 100%;}
+.btn_wrap{margin: 10px;}
+.add_input .mint-field-other{position: absolute;left: 115px;top: 16px;}
+</style>
+</head>
+
+<body ontouchstart>
+
+<div id="app" v-cloak>
+    <div class="bd_wrap">
+        <mt-field label="选择省市" class="add_input" :readonly="true" v-on:click.native="getAdd">{{ addressProvince }} {{ addressCity }}</mt-field>
+        <mt-field label="位置信息" placeholder="请输入位置信息" type="text" v-model="addMsg"></mt-field>
+        <mt-field label="联系电话" placeholder="请输入联系电话" type="tel" v-model="phoneNum" :attr="{ maxlength: 11 }"></mt-field>
+        <mt-field label="车辆类型" type="text" v-model="carType" :readonly="true" v-on:click.native="getName"></mt-field>
+        <mt-field label="车辆个数" type="text" v-model="carNum"></mt-field>
+        <mt-field v-model="beiZhu" placeholder="备注" type="textarea" rows="4" ></mt-field>
+    </div> 
+    <div class="btn_wrap">
+        <mt-button type="primary" size="large" v-on:click.native="submitBtn">提交</mt-button>
+    </div>
+    <mt-popup v-model="addPopup" position="bottom" class="popup">
+      <mt-picker :slots="addressSlots" v-on:change="onAddressChange" :visible-item-count="5"></mt-picker>
+    </mt-popup>
+    <mt-popup v-model="namePopup" position="bottom" class="popup">
+      <mt-picker :slots="carTypeSlot" v-on:change="onYearChange" :visible-item-count="5"></mt-picker>
+    </mt-popup>
+</div>
+
+</body>
+<script src="js/fastclick.js"></script> <!--去掉点击300ms延时-->
+<script>
+    window.onload=function(){
+        FastClick.attach(document.body);
+    };
+</script>
+<script src="js/vue.js"></script>
+<script src="mint-ui/index.js"></script>
+<script src="js/axios.min.js"></script>
+<script>
+
+var vm=new Vue({
+    el: '#app',
+    data:{
+        address:'', 
+        addressSlots: [{defaultIndex:0,flex: 1,values:''}, {divider: true,content: '-',}, {defaultIndex:0,flex: 1,values: [],}],
+        carTypeSlot: [{defaultIndex:0,values: []}],
+        addressProvince: '',  //省
+        addressCity: '',      //市
+        addPopup:false,       //省市遮罩层
+        namePopup:false,      //名字遮罩层
+        addMsg:'',            //位置信息
+        phoneNum:'',          //联系电话
+        beiZhu:'',            //备注
+        carType:'',           //选择
+        carNum:''             //车辆数量
+    },
+    methods: {
+        // 选择省市
+        onAddressChange:function (picker, values) {
+            picker.setSlotValues(1, this.address[values[0]]);
+            this.addressProvince = values[0];
+            this.addressCity = values[1];
+        },
+        getAdd:function(){
+            this.addPopup=true;
+        },
+        getName:function(){
+            this.namePopup=true;
+        },
+        // 提交数据
+        submitBtn:function(){
+            if (this.addMsg=='') {
+                this.$messagebox.alert('请输入位置信息', '温馨提示');
+                return;
+            }
+
+            console.log(this.addressProvince+this.addressCity); //省市信息
+            console.log(this.addMsg); //位置信息
+            console.log(this.phoneNum);//联系电话
+            console.log(this.carType); //车辆类型
+            console.log(this.carNum); //车辆个数
+            console.log(this.beiZhu);  //获取备注
+        },
+        onYearChange:function (picker, values) {
+            this.carType = values[0];
+        },
+        // 页面加载就获取数据
+        getMsg:function(){
+
+            // // 获取省市
+            // axios.get('http://192.168.0.106/common/GetPronviceAndCity?currentPage=1&pageSize=10').then(function(response){
+            //     this.address=response.data.Data;
+            //     this.addressSlots[0].values=Object.keys(this.address);
+            //     this.addressSlots[0].defaultIndex=1;
+            //     this.addressSlots[2].defaultIndex=0;
+            // }.bind(this)).catch(function(error){
+            //     console.log(error);
+            // }.bind(this));
+
+
+            // // 获取车辆类型
+            // axios.get('http://192.168.0.106/jiqi/GetJiqiList?currentPage=1&pageSize=10').then(function(response){
+            //     response.data.Data.forEach(function(a){
+            //         this.carTypeSlot[0].values.push(a.name);
+            //         this.carTypeSlot[0].defaultIndex=1; //默认显示索引
+            //     }.bind(this));
+            // }.bind(this)).catch(function(error){
+            //     console.log(error);
+            // }.bind(this));
+
+///////////////////////////////////////////////////////执行多个并发请求
+            this.$indicator.open(); //开启加载中
+            function getAdd(){
+                return axios.get('http://192.168.0.106/common/GetPronviceAndCity?currentPage=1&pageSize=10');
+            }
+            function getCar(){
+                return axios.get('http://192.168.0.106/jiqi/GetJiqiList?currentPage=1&pageSize=10');
+            }
+            axios.all([getAdd(), getCar()])
+              .then(axios.spread(function (add, car) {
+                    // 两个请求现在都执行完成
+                    this.$indicator.close(); //关闭加载中
+
+                    // 获取省市
+                    this.address=add.data.Data;
+                    this.addressSlots[0].values=Object.keys(this.address);
+                    this.addressSlots[0].defaultIndex=2;//设置省索引
+                    this.addressSlots[2].defaultIndex=0;//设置市索引
+
+                    // 获取车辆类型
+                    car.data.Data.forEach(function(a){
+                        this.carTypeSlot[0].values.push(a.name);
+                        this.carTypeSlot[0].defaultIndex=3; //设置车辆类型索引
+                    }.bind(this));
+
+              }.bind(this)));
+            
+        }
+    },
+    mounted:function(){
+        this.getMsg();
+    }
+});
+</script>
+	
+</html>
