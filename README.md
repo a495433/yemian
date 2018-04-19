@@ -1,3 +1,3 @@
-#**My git**    
-This is my git project 
+#**This is Git project**    
+ 
 
