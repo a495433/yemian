@@ -344,10 +344,10 @@ h1, h2, h3, h4, h5, h6 {
 html, body {
     background-color: #fafafa;
     -webkit-overflow-scrolling: touch;
-    -webkit-user-select: none;
+    /* -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-    user-select: none;
+    user-select: none; */
     min-height: 100%;
 }
 a {
