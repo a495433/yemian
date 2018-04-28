@@ -9,8 +9,9 @@
 <style type="text/css">
 body{background-color: #eee;}
 [v-cloak] { display: none }
+.img_box img{width: 100%;display: block;pointer-events: none;}
 .popup{width: 100%;}
-.btn_wrap{margin: 10px;}
+.btn_wrap{margin: 15px;}
 .add_input .mint-field-other{position: absolute;left: 115px;top: 16px;}
 </style>
 </head>
@@ -18,9 +19,12 @@ body{background-color: #eee;}
 <body ontouchstart>
 
 <div id="app" v-cloak>
+    <div class="img_box"><img src="images/002.jpg"></div>
     <div class="bd_wrap">
         <mt-field label="选择省市" class="add_input" :readonly="true" v-on:click.native="getAdd">{{ addressProvince }} {{ addressCity }}</mt-field>
-        <mt-field label="位置信息" placeholder="请输入位置信息" type="text" v-model="addMsg"></mt-field>
+        <mt-field label="位置信息" type="textarea" v-model="addMsg" rows="2">
+            <mt-button size="small" v-on:click.native="geolocation.getLocation(showPosition,showErr, options)">定位</mt-button>
+        </mt-field>
         <mt-field label="联系电话" placeholder="请输入联系电话" type="tel" v-model="phoneNum" :attr="{ maxlength: 11 }"></mt-field>
         <mt-field label="车辆类型" type="text" v-model="carType" :readonly="true" v-on:click.native="getName"></mt-field>
         <mt-field label="车辆个数" type="text" v-model="carNum"></mt-field>
@@ -47,6 +51,7 @@ body{background-color: #eee;}
 <script src="js/vue.js"></script>
 <script src="mint-ui/index.js"></script>
 <script src="js/axios.min.js"></script>
+<script type="text/javascript" src="js/geolocation.min.js"></script>
 <script>
 
 var vm=new Vue({
@@ -63,9 +68,22 @@ var vm=new Vue({
         phoneNum:'',          //联系电话
         beiZhu:'',            //备注
         carType:'',           //选择
-        carNum:''             //车辆数量
+        carNum:'' ,           //车辆数量
+
+        geolocation:'',         //
+        options:'',             //超时
     },
     methods: {
+        getPos:function(){
+            this.geolocation = new qq.maps.Geolocation("DHLBZ-DDF3D-V464C-HLF7O-NNFVS-W4FGJ", "myapp");
+            this.options = {timeout: 8000};
+        },
+        showPosition:function (position) {
+                this.addMsg = position.province+position.city+position.addr;
+            },
+        showErr:function() {
+                this.addMsg = "定位失败！";
+            },
         // 选择省市
         onAddressChange:function (picker, values) {
             picker.setSlotValues(1, this.address[values[0]]);
@@ -80,17 +98,7 @@ var vm=new Vue({
         },
         // 提交数据
         submitBtn:function(){
-            if (this.addMsg=='') {
-                this.$messagebox.alert('请输入位置信息', '温馨提示');
-                return;
-            }
-
-            console.log(this.addressProvince+this.addressCity); //省市信息
-            console.log(this.addMsg); //位置信息
-            console.log(this.phoneNum);//联系电话
-            console.log(this.carType); //车辆类型
-            console.log(this.carNum); //车辆个数
-            console.log(this.beiZhu);  //获取备注
+            console.log(this.addMsg);
         },
         onYearChange:function (picker, values) {
             this.carType = values[0];
@@ -150,6 +158,7 @@ var vm=new Vue({
     },
     mounted:function(){
         this.getMsg();
+        this.getPos();
     }
 });
 </script>

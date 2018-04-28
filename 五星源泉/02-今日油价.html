@@ -10,23 +10,26 @@
 body{background-color: #eee;}
 [v-cloak] { display: none }
 .popup{width: 100%;}
-.btn_wrap{margin: 10px;}
+.btn_wrap{margin: 15px;}
 .add_input .mint-field-other{position: absolute;left: 115px;top: 16px;}
 
-.img_box img{width: 100%;}
+.img_box img{width: 100%;display: block;}
 .youjia_list{margin-top: 10px;}
 .youjia_list .s_price{color: #ea4d46;font-weight: bold;}
 .youjia_list .p_tit{display: flex;background-color: #fff;padding: 10px;font-weight: bold;font-size: 16px;}
 .youjia_list .p_tit span{flex: 1;}
 .youjia_list .p_tit span:last-child{text-align: right;}
 .youjia_list .mint-cell:last-child{background-image: none;}
+
+.p_add{margin: 10px;}
 </style>
 </head>
 
 <body ontouchstart>
 
 <div id="app" v-cloak>
-    <div class="img_box"><img src="images/today_youjia.jpg"></div>
+    <div class="img_box"><img src="images/001.jpg"></div>
+    <p class="p_add">当前位置：河南郑州</p>
    <div class="youjia_list">
        <p class="p_tit">
            <span>标号</span>
@@ -61,7 +64,7 @@ var vm=new Vue({
         b93: '',
         b97: '',
         b0: '',
-        updateTime:''
+        updateTime:'',
     },
     methods: {
         getMsg: function () {  
@@ -73,15 +76,6 @@ var vm=new Vue({
                     this.b93=response.data.Data.b93;
                     this.b97=response.data.Data.b97;
                     this.b0=response.data.Data.b0;
-                    // if (response.data.Code == 0) {
-                    //     vm.b90 = response.data.Data.b90;
-                    //     vm.b93 = response.data.Data.b93;
-                    //     vm.b97 = response.data.Data.b97;
-                    //     vm.b0 = response.data.Data.b0;                       
-                    // } else {
-                 
-                    // }
-                
             }.bind(this)).catch(function (error) {
                 console.log(error);
             }.bind(this));
