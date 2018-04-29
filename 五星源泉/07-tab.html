@@ -31,31 +31,7 @@ html,body{background-color: #eee;}
 <body ontouchstart>
 
 <div id="app" v-cloak>
-    <mt-navbar class="nav_tit" v-model="selected" :fixed="true">
-      <mt-tab-item id="nav1" v-on:click.native="tab('done')">已完成</mt-tab-item>
-      <mt-tab-item id="nav2" v-on:click.native="tab('none')">未完成</mt-tab-item>
-    </mt-navbar>
-      <ul class="page-infinite-list order_list msg_wrap" v-infinite-scroll="loadMore" infinite-scroll-disabled="Loading" infinite-scroll-distance="50">
-         <li v-for="(list,index) in doneArr">
-             <mt-cell :title="list.createTimeString">{{index+1}}</mt-cell>
-              <mt-cell :title="'类型：'+list.jiQiName">
-                <img slot="icon" src="images/order_icon/car.png">
-              </mt-cell>
-              <mt-cell :title="'数量：'+list.count.toString()">
-                <img slot="icon" src="images/order_icon/computer.png">
-              </mt-cell>
-              <mt-cell :title="'电话：'+list.phoneNumber">
-                <img slot="icon" src="images/order_icon/phone_icon.png">
-              </mt-cell>
-              <mt-cell :title="'地址：'+list.province+list.city+list.detailLocation">
-                <img slot="icon" src="images/order_icon/add_icon.png">
-              </mt-cell>
-              <mt-cell :title="'备注：'+list.memo">
-                <img slot="icon" src="images/order_icon/order.png">
-              </mt-cell>
-         </li>
-     </ul>
-      <p class="load_text">{{LoadText}}</p>
+    
 </div>
 
 </body>
@@ -72,53 +48,10 @@ html,body{background-color: #eee;}
 var vm=new Vue({
     el: '#app',
     data:{
-       selected:'nav1', 
-       doneArr:[], 
-       Loading: false,//若为真，则无限滚动不会被触发
-       CurrentPage:1,
-       AllNum:'', //数据总数
-       state:1,
-       LoadText:'加载中...',
+      
     },
     methods: {
-        resetData:function (){
-            this.doneArr=[];
-            this.Loading=false;
-            this.CurrentPage=1;
-            this.AllNum='';
-            this.LoadText='加载中...';
-        },
-        tab:function(type){
-           if (type=='done') {
-              this.resetData();
-              this.state=1;
-              this.loadMore();
-           }
-           if (type=='none') {
-              this.resetData();
-              this.state=0;
-              this.loadMore();
-           }
-        },
-        loadMore:function(){
-            this.Loading = true;
-            axios.get('http://192.168.0.106/usercenter/GetOrderList',{params:{currentPage:this.CurrentPage,pageSize:10,state:this.state}}).then(function(response){
-                this.AllNum=response.data.Page.TotalItem;
-                response.data.Data.forEach(function(a){
-                    this.doneArr.push(a);
-                }.bind(this));
-                
-                if (this.doneArr.length<this.AllNum) {
-                    this.CurrentPage++;
-                    this.Loading = false;
-                    this.LoadText='加载中...';
-                } else {
-                    this.LoadText='没有更多数据啦！';
-                }
-            }.bind(this)).catch(function(error){
-                console.log(error);
-            }.bind(this));
-      },
+       
     },
     mounted:function(){
         
