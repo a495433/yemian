@@ -13,17 +13,19 @@ body{background-color: #eee;}
 .popup{width: 100%;}
 .btn_wrap{margin: 15px;}
 .add_input .mint-field-other{position: absolute;left: 115px;top: 16px;}
+.popup_pos{width: 100%;height: 100%;}
 </style>
 </head>
 
 <body ontouchstart>
 
 <div id="app" v-cloak>
+    
     <div class="img_box"><img src="images/002.jpg"></div>
     <div class="bd_wrap">
         <mt-field label="选择省市" class="add_input" :readonly="true" v-on:click.native="getAdd">{{ addressProvince }} {{ addressCity }}</mt-field>
         <mt-field label="位置信息" type="textarea" v-model="addMsg" rows="2">
-            <mt-button size="small" v-on:click.native="geolocation.getLocation(showPosition,showErr, options)">定位</mt-button>
+            <mt-button size="small" v-on:click.native="tabAdd">定位</mt-button>
         </mt-field>
         <mt-field label="联系电话" placeholder="请输入联系电话" type="tel" v-model="phoneNum" :attr="{ maxlength: 11 }"></mt-field>
         <mt-field label="车辆类型" type="text" v-model="carType" :readonly="true" v-on:click.native="getName"></mt-field>
@@ -39,6 +41,10 @@ body{background-color: #eee;}
     <mt-popup v-model="namePopup" position="bottom" class="popup">
       <mt-picker :slots="carTypeSlot" v-on:change="onYearChange" :visible-item-count="5"></mt-picker>
     </mt-popup>
+    <mt-popup v-model="popupPos" position="bottom" class="popup_pos">
+        <iframe id="mapPage" width="100%" height="100%" frameborder=0 src="http://apis.map.qq.com/tools/locpicker?search=1&type=1&key=DHLBZ-DDF3D-V464C-HLF7O-NNFVS-W4FGJ&referer=myapp">
+        </iframe>
+    </mt-popup>
 </div>
 
 </body>
@@ -51,7 +57,7 @@ body{background-color: #eee;}
 <script src="js/vue.js"></script>
 <script src="mint-ui/index.js"></script>
 <script src="js/axios.min.js"></script>
-<script type="text/javascript" src="js/geolocation.min.js"></script>
+<!-- <script type="text/javascript" src="js/geolocation.min.js"></script> -->
 <script>
 
 var vm=new Vue({
@@ -67,24 +73,28 @@ var vm=new Vue({
         addMsg:'',            //位置信息
         phoneNum:'',          //联系电话
         beiZhu:'',            //备注
-        carType:'',           //选择
+        carType:'',           //车辆类型
         carNum:'' ,           //车辆数量
+        popupPos:false
 
-        geolocation:'',         //
-        options:'',             //超时
+        // geolocation:'',         //
+        // options:'',             //超时
     },
     methods: {
-        getPos:function(){
-            this.geolocation = new qq.maps.Geolocation("DHLBZ-DDF3D-V464C-HLF7O-NNFVS-W4FGJ", "myapp");
-            this.options = {timeout: 8000};
+      
+       
+        tabAdd:function(){
+            this.popupPos=true;
+            window.addEventListener('message', function (event) {
+                // 接收位置信息，用户选择确认位置点后选点组件会触发该事件，回传用户的位置信息
+                var loc = event.data;
+                if (loc && loc.module == 'locationPicker') {//防止其他应用也会向该页面post信息，需判断module是否为'locationPicker'
+                    console.log(loc.poiaddress);
+                    this.addMsg=loc.poiaddress
+                    this.popupPos = false
+                }
+            }.bind(this), false); 
         },
-        showPosition:function (position) {
-                this.addMsg = position.province+position.city+position.addr;
-            },
-        showErr:function() {
-                this.addMsg = "定位失败！";
-            },
-        // 选择省市
         onAddressChange:function (picker, values) {
             picker.setSlotValues(1, this.address[values[0]]);
             this.addressProvince = values[0];
@@ -99,6 +109,10 @@ var vm=new Vue({
         // 提交数据
         submitBtn:function(){
             console.log(this.addMsg);
+            console.log(this.phoneNum);
+            console.log(this.carType);
+            console.log(this.carNum);
+            console.log(this.beiZhu);
         },
         onYearChange:function (picker, values) {
             this.carType = values[0];
@@ -158,7 +172,6 @@ var vm=new Vue({
     },
     mounted:function(){
         this.getMsg();
-        this.getPos();
     }
 });
 </script>
